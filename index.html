@@ -42,6 +42,7 @@
 	let storages = {}, selectedStorage = '', selectedUser = '';
 	socket.emit('begin');
 	setInterval(() => socket.emit('begin'), 10 * 1000);
+	document.getElementById('reload').onclick = function () {socket.emit('begin')};
 	
 	socket.on('sendBegin', data => {
 		// console.log('generated');
