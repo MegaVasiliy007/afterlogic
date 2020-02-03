@@ -1,0 +1,23 @@
+{
+	"name": "afterlogic",
+	"description": "Test task for afterlogic",
+	"version": "1.0.0",
+	"main": "main.js",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MegaVasiliy007/whooves.git"
+	},
+	"license": "MIT",
+	"scripts": {
+		"dev": "node ."
+	},
+	"dependencies": {
+		"express": "^4.17.1",
+		"cookie-parser": "^1.4.4",
+		"socket.io": "^2.3.0",
+		"express-session": "^1.17.0",
+		"request": "^2.88.0",
+		"request-promise-native": "^1.0.8"
+	}
+}

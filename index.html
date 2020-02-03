@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>Document</title>
+	<style>
+		html, body {
+			font-size: 20px;
+		}
+		.logout {
+			margin-left: 20px;
+		}
+		.column {
+			float: left;
+			width: 33.33%;
+		}
+		.column button {
+			width: 97%;
+			height: 70px;
+			border: none;
+			font-size: 30px;
+			margin-bottom: 5px;
+		}
+		.row {
+			margin-top: 50px;
+		}
+	</style>
+</head>
+<body>
+<button id="reload">Reload</button>
+<a class="logout" href="/logout">Logout</a>
+<div class="row">
+	<div class="column" id="storage"></div>
+	<div class="column" id="contacts"></div>
+	<div class="column" id="contactInfo"></div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	const socket = io();
+	let storages = {}, selectedStorage = '', selectedUser = '';
+	socket.emit('begin');
+	setInterval(() => socket.emit('begin'), 10 * 1000);
+	
+	socket.on('sendBegin', data => {
+		// console.log('generated');
+		renderStorages(data);
+		storages = data;
+	});
+	
+	/**
+	 * @function
+	 * @param {Object} newStore
+	 */
+	function renderStorages(newStore) {
+		document.getElementById('storage').innerHTML = '';
+		for (let name of Object.keys(newStore))
+			document.getElementById('storage').innerHTML += `<button name="storage" id="${name}">${name.slice(0, 1).toUpperCase() + name.slice(1)}</button>`;
+		document.getElementsByName('storage').forEach(el => el.onclick = function () {renderContacts(this.id)});
+		if (selectedStorage) renderContacts(selectedStorage);
+	}
+	
+	/**
+	 * @function
+	 * @param {string} storage
+	 */
+	function renderContacts(storage) {
+		selectedStorage = storage;
+		document.getElementById('contactInfo').innerHTML = '';
+		document.getElementById('contacts').innerHTML = '';
+		for (let contact of Object.keys(storages[storage])) {
+			let info = storages[storage][contact].info;
+			document.getElementById('contacts').innerHTML += `<button name="contact" id="${contact}">${info.name || info.fullName || info.email}${(info.name || info.fullName) && info.email ? ` (${info.email})` : ''}</button>`;
+		}
+		document.getElementsByName('contact').forEach(el => el.onclick = function () {showInfo(this.id)});
+		if (selectedUser && storages[selectedStorage][selectedUser]) showInfo(selectedUser);
+	}
+	
+	/**
+	 * @function
+	 * @param {string} id
+	 */
+	function showInfo(id) {
+		selectedUser = id;
+		document.getElementById('contactInfo').innerHTML = '';
+		let info = storages[selectedStorage][id].info;
+		for (let inf of Object.keys(info))
+			document.getElementById('contactInfo').innerHTML += `<p>${inf.slice(0, 1).toUpperCase() + inf.slice(1)}: ${info[inf]}</p>`;
+	}
+</script>
+</body>
+</html>
