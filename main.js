@@ -38,7 +38,7 @@ async function getContacts(auth, storage = '', oldContacts = {}) {
 	
 	const retData = {};
 	const contactsInfo = await getContactsInfo(auth, storage, data.Result.Info.filter(el => !oldContacts[el.UUID] || oldContacts[el.UUID].ETag != el.ETag).map(el => el.UUID));
-	for (let contact of data.Result.Info) retData[contact.UUID] = {ETag: contact.ETag, info: contactsInfo[contact.UUID] || oldContacts[contact.UUID]};
+	for (let contact of data.Result.Info) retData[contact.UUID] = {ETag: contact.ETag, info: contactsInfo[contact.UUID] || oldContacts[contact.UUID].info};
 	return retData;
 }
 
@@ -67,6 +67,7 @@ session = require('express-session')({secret: "hrouow47g4", resave: false, saveU
 io.use((socket, next) => {session(socket.request, socket.request.res || {}, next)});
 io.on('connection', (socket) => {
 	socket.on('begin', async () => {
+		if (!socket.request.session.auth) return;
 		socket.request.session.storage = await getStorage(socket.request.session.auth, socket.request.session.storage);
 		socket.request.session.save();
 		let sendData = {};
